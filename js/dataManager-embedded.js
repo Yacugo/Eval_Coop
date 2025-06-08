@@ -113,7 +113,7 @@ class DataManager {
     }
 
     getInstructorEmail() {
-        return this.config.instructor?.email || 'instructor@university.edu';
+        return this.config.instructor?.email || 'raul.bernardino@ipleiria.pt';
     }
 
     // Local storage management
