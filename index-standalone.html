@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cooperative Evaluation System - Standalone</title>
+    
+    <!-- External CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading"></div>
+            <p class="mt-4 text-gray-600">Loading application...</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <header class="bg-blue-600 text-white p-6 rounded-t-lg">
+                <h1 class="text-3xl font-bold text-center">
+                    <i class="fas fa-users mr-3"></i>Cooperative Evaluation System
+                </h1>
+                <p class="text-center mt-2 text-blue-100">Evaluate yourself and your group members</p>
+            </header>
+
+            <!-- Main Content -->
+            <main class="bg-white shadow-lg rounded-b-lg p-6">
+                <!-- Configuration Notice -->
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                    <p class="text-blue-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Standalone Version:</strong> Data is embedded in the application. To modify student list or settings, edit the JavaScript files.
+                    </p>
+                </div>
+
+                <!-- Login Section -->
+                <section id="loginSection" class="mb-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Student Login
+                    </h2>
+                    
+                    <div class="alert alert-warning mb-4">
+                        <p>
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>Important:</strong> You can only submit your evaluation once. Please complete all sections before submitting.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 items-end">
+                        <div class="flex-1 form-group">
+                            <label for="studentSelect" class="form-label">Select your name:</label>
+                            <select id="studentSelect" class="form-control">
+                                <option value="">-- Choose your name --</option>
+                            </select>
+                        </div>
+                        <button id="loginBtn" class="btn-primary">
+                            <i class="fas fa-arrow-right mr-2"></i>Continue
+                        </button>
+                    </div>
+                    
+                    <div id="alreadySubmitted" class="hidden mt-4 alert alert-error">
+                        <p>
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            You have already submitted your evaluation. Multiple submissions are not allowed.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Group Selection Section -->
+                <section id="groupSelectionSection" class="hidden mb-8 fade-in">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+                        <i class="fas fa-users mr-2"></i>Select Your Group Members
+                    </h2>
+                    <p class="text-gray-600 mb-4">Select 3-5 group members (including yourself). You will evaluate all selected members.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="form-label">Available Students:</label>
+                            <div id="availableStudents" class="bg-gray-50 border rounded-lg p-4 h-80 overflow-y-auto">
+                                <!-- Students will be populated here -->
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Selected Group Members:</label>
+                            <div id="selectedStudents" class="bg-blue-50 border border-blue-200 rounded-lg p-4 h-80 overflow-y-auto">
+                                <p class="text-gray-500 text-center">No students selected yet</p>
+                            </div>
+                            <div class="mt-4">
+                                <button id="proceedToEvaluation" class="w-full btn-success" disabled>
+                                    <i class="fas fa-arrow-right mr-2"></i>Proceed to Evaluation
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-sm text-gray-600">
+                        <p><strong>Selected:</strong> <span id="selectionCount">0</span> members</p>
+                        <p id="selfIncludedMessage" class="hidden text-green-600">
+                            <i class="fas fa-check mr-1"></i>You are included in the group
+                        </p>
+                        <p id="selfMissingMessage" class="hidden text-orange-600">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>You must include yourself in the group
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Evaluation Section -->
+                <section id="evaluationSection" class="hidden mb-8 fade-in">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+                        <i class="fas fa-star mr-2"></i>Group Evaluation
+                    </h2>
+                    <p class="text-gray-600 mb-6">Rate each group member using the scale below. Include comments if desired.</p>
+                    
+                    <!-- Rating Scale Legend -->
+                    <div class="alert alert-info mb-6">
+                        <h3 class="font-semibold mb-2">Rating Scale:</h3>
+                        <div id="ratingScaleLegend" class="rating-legend">
+                            <!-- Rating scale will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Table -->
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th class="text-center">Excellent<br>(100)</th>
+                                    <th class="text-center">Very good<br>(85)</th>
+                                    <th class="text-center">Good<br>(71.5)</th>
+                                    <th class="text-center">Reasonable<br>(57.2)</th>
+                                    <th class="text-center">Average<br>(42.9)</th>
+                                    <th class="text-center">Mediocre<br>(28.6)</th>
+                                    <th class="text-center">Bad<br>(14.3)</th>
+                                    <th class="text-center">Awful<br>(0)</th>
+                                    <th class="text-center">Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody id="evaluationTableBody">
+                                <!-- Evaluation rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6 text-center">
+                        <button id="submitEvaluation" class="btn-success text-lg font-semibold px-8">
+                            <i class="fas fa-check mr-2"></i>Submit Evaluation
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Success Section -->
+                <section id="successSection" class="hidden text-center fade-in">
+                    <div class="alert alert-success p-8">
+                        <i class="fas fa-check-circle text-green-600 text-6xl mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-green-800 mb-2">Evaluation Submitted Successfully!</h2>
+                        <p class="text-green-700 mb-4">Your evaluation has been saved locally and prepared for submission.</p>
+                        
+                        <!-- Email Export Options -->
+                        <div class="bg-white border rounded-lg p-4 mt-4">
+                            <h3 class="font-semibold mb-3">Submit Your Results</h3>
+                            <div class="flex flex-col gap-3">
+                                <button id="emailResults" class="btn-primary">
+                                    <i class="fas fa-envelope mr-2"></i>Email Results to Instructor
+                                </button>
+                                <button id="downloadResults" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition duration-200">
+                                    <i class="fas fa-download mr-2"></i>Download CSV File
+                                </button>
+                                <p class="text-sm text-gray-600">Please use one of the above methods to submit your evaluation to your instructor.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Instructor Section -->
+                <section class="mt-12 pt-8 border-t border-gray-200 no-print">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+                        <i class="fas fa-user-tie mr-2"></i>Instructor Panel
+                    </h2>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <button id="exportData" class="btn-primary">
+                                <i class="fas fa-download mr-2"></i>Export All Evaluations (CSV)
+                            </button>
+                            <button id="viewStats" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                                <i class="fas fa-chart-bar mr-2"></i>View Statistics
+                            </button>
+                            <button id="clearData" class="btn-danger">
+                                <i class="fas fa-trash mr-2"></i>Clear All Data
+                            </button>
+                        </div>
+                        <div id="statsDisplay" class="hidden mt-4 p-4 bg-white border rounded-lg">
+                            <!-- Stats will be displayed here -->
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules - Using embedded data version -->
+    <script src="./js/dataManager-embedded.js"></script>
+    <script src="./js/app.js"></script>
+    
+    <script>
+        // Hide loading overlay when page is fully loaded
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 500);
+        });
+    </script>
+</body>
+</html>
