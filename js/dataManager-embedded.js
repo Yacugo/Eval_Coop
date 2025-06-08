@@ -75,8 +75,8 @@ class DataManager {
         // Embedded configuration
         this.config = {
             "instructor": {
-                "email": "your.email@university.edu",
-                "name": "Professor Name"
+                "email": "raul.bernardino@ipleiria.pt",
+                "name": "Raul Bernardino"
             },
             "evaluation": {
                 "minGroupSize": 3,
